@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🌸 Pink Story</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#fdf6f8;--side:#fbeef2;--hero:#f6e4e8;--card:#fff;--line:#f1d5dd;--ac:#d4728d;--ac-d:#b5506d;--head:#8f3552;--tx:#3d2a31;--mu:#8c6a75;--dg:#c8434f}
+body{margin:0;font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.hidden{display:none!important}
+button{font:inherit;cursor:pointer;border:0;border-radius:999px;padding:10px 20px;font-weight:700;font-size:14px;background:var(--ac);color:#fff;transition:background .15s}
+button:hover{background:var(--ac-d)}
+button.ghost{background:#fff;color:var(--ac-d);border:1.5px solid var(--line)}
+button.ghost:hover{background:var(--hero)}
+button.danger{background:var(--dg)}
+button.sm{padding:6px 14px;font-size:13px}
+:focus-visible{outline:2px solid var(--ac-d);outline-offset:2px}
+label{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
+input,textarea{width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;font:inherit;font-size:14px;margin-bottom:14px;color:var(--tx)}
+input:focus,textarea:focus{outline:none;border-color:var(--ac)}
+textarea{min-height:100px;resize:vertical}
+h1,h2,h3{margin:0;color:var(--head)}
+.mu{color:var(--mu);font-size:14px}
+.err{color:var(--dg);font-size:14px;margin-top:8px}
+
+/* auth */
+#authView{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#ffe3ec,#f6d3de)}
+.auth{background:#fff;border-radius:28px;padding:36px;width:100%;max-width:400px;box-shadow:0 20px 50px rgba(181,80,109,.18)}
+.auth h1{text-align:center;font-size:30px;margin-bottom:6px}
+.auth form button{width:100%}
+.auth .top{display:flex;justify-content:flex-end;margin-bottom:8px}
+
+/* shell */
+.shell{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+aside{background:var(--side);border-right:1px solid var(--line);padding:22px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:22px}
+.brand{display:flex;align-items:center;gap:12px;padding:0 6px}
+.logo{width:46px;height:46px;border-radius:14px;background:var(--ac);display:grid;place-items:center;font-size:22px}
+.brand b{display:block;font-size:17px;color:var(--tx)}
+nav{display:flex;flex-direction:column;gap:6px}
+nav a{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;color:var(--mu);font-weight:600;cursor:pointer;text-decoration:none}
+nav a:hover{background:#fff7}
+nav a.on{background:#fff;color:var(--ac-d);box-shadow:0 2px 8px rgba(181,80,109,.08)}
+nav .badge{margin-left:auto;background:var(--ac);color:#fff;border-radius:999px;font-size:12px;padding:1px 9px}
+.main{min-width:0}
+.top{display:flex;align-items:center;gap:12px;padding:18px 32px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.search{flex:1;min-width:200px;margin:0;border-radius:999px;padding:12px 20px}
+.lang{display:flex;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:3px}
+.lang button{background:none;color:var(--mu);padding:6px 14px;font-size:13px}
+.lang button.on{background:var(--ac);color:#fff}
+.user{font-size:14px;display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--ac);color:#fff;display:grid;place-items:center;font-weight:800}
+.page{padding:28px 32px 60px;max-width:1100px}
+.hero{background:var(--hero);border:1px solid var(--line);border-radius:32px;padding:34px 38px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:30px}
+.hero h1{font-size:clamp(26px,4vw,42px);letter-spacing:-.02em;margin:6px 0 10px}
+.hero p{margin:0;color:var(--mu);font-size:17px;max-width:520px;line-height:1.6}
+.hero .kicker{font-weight:700;color:var(--ac-d);font-size:14px}
+.sec{font-size:14px;font-weight:800;color:var(--mu);margin:0 0 14px}
+.qa{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:34px}
+.qa div{background:#fff;border:1.5px solid var(--line);border-radius:22px;padding:20px;cursor:pointer;font-weight:700;display:flex;flex-direction:column;gap:18px}
+.qa div:hover{border-color:var(--ac)}
+.ico{width:46px;height:46px;border-radius:14px;background:var(--hero);display:grid;place-items:center;font-size:20px}
+.panel{background:#fff;border:1.5px solid var(--line);border-radius:28px;padding:26px;margin-bottom:26px}
+.panel h2{font-size:21px;margin-bottom:16px;color:var(--tx)}
+.row{border:1.5px solid var(--line);background:#fffafb;border-radius:20px;padding:16px 18px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.row h3{font-size:17px;color:var(--tx);margin-bottom:4px}
+.row p{margin:0}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.tag{display:inline-block;background:var(--hero);color:var(--ac-d);border-radius:999px;padding:3px 12px;font-size:12px;font-weight:700;margin-right:6px}
+.part-img{max-width:100%;border-radius:16px;margin:12px 0;display:block}
+.part-content{white-space:pre-wrap;line-height:1.8;font-size:16px;font-family:Georgia,serif;margin-top:8px}
+.part{border:1.5px solid var(--line);border-radius:22px;padding:20px;margin-bottom:16px;background:#fffafb}
+.part .hd{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.back{margin-bottom:18px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--tx);color:#fff;padding:12px 20px;border-radius:999px;display:flex;gap:14px;align-items:center;font-size:14px;z-index:9;box-shadow:0 8px 24px #0003}
+.toast button{background:none;color:#ffc2d1;padding:0;text-decoration:underline}
+.trash-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.note{background:#fff4e5;border:1px solid #f5d9a8;color:#7a5410;border-radius:16px;padding:12px 16px;font-size:14px;margin-bottom:20px}
+.thumb{width:72px;height:72px;border-radius:16px;object-fit:cover;flex:none}.thumb.ph{display:grid;place-items:center;background:var(--hero);font-size:28px}
+.thumb.wide{width:100%;height:auto;max-height:200px}
+.rw{display:flex;gap:14px;align-items:center;min-width:0;flex:1}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.av{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none}.av.ph{display:grid;place-items:center;background:var(--hero)}
+.cover{border-radius:28px;min-height:260px;background:linear-gradient(135deg,#d99aae,#8f3552) center/cover;display:flex;align-items:flex-end;margin-bottom:20px;overflow:hidden}
+.cover-in{width:100%;padding:28px;background:linear-gradient(transparent,#2b0f1acc);color:#fff}
+.cover-in h1{color:#fff;font-size:clamp(26px,4vw,38px)}.cover-in p{margin:8px 0 12px;font-size:16px;opacity:.92}
+.cover .tag{background:#ffffff26;color:#fff;border:1px solid #ffffff55}
+.tabs{display:flex;border-bottom:1.5px solid var(--line);margin-bottom:20px}
+.tabs button{background:none;color:var(--mu);border-radius:0;flex:1;padding:14px;border-bottom:3px solid transparent}
+.tabs button:hover{background:none;color:var(--head)}.tabs button.on{color:var(--head);border-bottom-color:var(--ac)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.char{display:flex;gap:12px;align-items:center;padding:8px 0}.char small{display:block;color:var(--mu);font-size:12px}
+.bubble{display:flex;gap:14px;align-items:flex-start}.bubble .box{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:22px;padding:16px 20px;background:#fffafb}
+.fold{--fb:#fff;overflow:hidden}.box .fold{--fb:#fffafb}
+.fold-in{max-height:240px;overflow:hidden;position:relative}.fold.open .fold-in{max-height:none}
+.fold:not(.open) .fold-in::after{content:'';position:absolute;left:0;right:0;bottom:0;height:80px;background:linear-gradient(transparent,var(--fb))}
+.fold p{margin:0 0 14px;line-height:1.75}.fold.short button{display:none}
+.link{background:none;color:var(--ac-d);padding:6px 0;float:right}.link:hover{background:none;text-decoration:underline}
+.cta{position:sticky;bottom:16px;width:100%;padding:16px;font-size:16px;box-shadow:0 8px 24px rgba(181,80,109,.35);z-index:5}
+.npc-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}.grow{flex:1;min-width:0}.grow input{margin-bottom:8px}
+.hint{font-size:13px;color:var(--mu);margin:-8px 0 12px}
+.foot{margin-top:auto;display:flex;flex-direction:column;gap:8px}.bar{height:6px;background:#fff;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.lbl{display:block;text-align:center;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--ac-d);background:#fff;cursor:pointer}.lbl:hover{background:var(--hero)}
+.rbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.rbox{border-radius:26px;padding:clamp(20px,5vw,44px);line-height:1.9;border:1.5px solid var(--line);min-height:50vh}
+.rbox.light{background:#fff;color:var(--tx)}.rbox.sepia{background:#f4ecd8;color:#4b3b2a;border-color:#e3d6b8}.rbox.dark{background:#161b2e;color:#e6e8f0;border-color:#2a3150}
+.rbox h2,.rbox h3{color:inherit}.rbox h2{font-size:1.3em;margin-bottom:4px}.rbox h3{font-size:1em;opacity:.7;margin-bottom:22px}.rbox p{margin:0 0 1.1em}.rbox img{max-width:100%;border-radius:14px;margin:0 0 1.2em}
+.rnav{display:flex;gap:10px;margin-top:16px;align-items:center}.rnav select{flex:1;margin:0;min-width:0}
+button:disabled{opacity:.4;cursor:default}
+select{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:14px;background:#fff;font:inherit;font-size:14px;margin-bottom:14px;color:var(--tx)}
+input[type=checkbox]{width:auto;margin:0 8px 0 0}.chk{display:flex;align-items:center;font-weight:600;margin-bottom:12px}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 14px}
+.rte{border:1.5px solid var(--line);border-radius:16px;background:#fff;margin-bottom:14px;overflow:hidden}
+.rte .tb{display:flex;flex-wrap:wrap;gap:4px;padding:8px;background:var(--side);border-bottom:1px solid var(--line);align-items:center}
+.rte .tb button{padding:4px 9px;font-size:13px;border-radius:8px;background:#fff;color:var(--tx);border:1px solid var(--line)}.rte .tb button:hover{background:var(--hero)}
+.rte .tb select{width:auto;margin:0;padding:3px 6px;font-size:12px;border-radius:8px}
+.rte .tb input[type=color]{width:28px;height:26px;padding:0;margin:0 2px;border-radius:6px;vertical-align:middle}
+.rte .tb input.hex{width:78px;margin:0;padding:3px 6px;font-size:12px;border-radius:8px}
+.rte .ed{min-height:130px;padding:14px 16px;line-height:1.7;outline:none;max-height:420px;overflow:auto}
+.rte .ed:empty:before{content:attr(data-ph);color:var(--mu)}
+.rich p,.rich div{margin:0 0 .7em}
+.rhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 28px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:9}
+.rlogo{font-weight:800;font-size:21px;color:var(--head);cursor:pointer}
+.rhead input{margin:0;flex:1;min-width:160px;border-radius:999px}.rhead select{margin:0;width:auto;border-radius:999px}
+.rmain{max-width:1200px;margin:0 auto;padding:24px 28px 60px}.rmain h2{margin:6px 0 14px;font-size:22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px;margin-bottom:34px}
+.card{cursor:pointer;transition:transform .15s}.card:hover{transform:translateY(-4px)}
+.card .im{aspect-ratio:3/4;border-radius:18px;background:var(--hero) center/cover;position:relative;overflow:hidden;display:grid;place-items:center;font-size:40px;box-shadow:0 6px 16px rgba(181,80,109,.15)}
+.badge2{position:absolute;top:8px;left:8px;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:800;color:#fff}.b-full{background:#2f9e6f}.b-on{background:var(--ac)}
+.card h4{margin:8px 0 2px;font-size:14px;color:var(--tx);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.chip{cursor:pointer}.chip.on{background:var(--ac);color:#fff}
+.dhead{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:24px}.dhead .im{width:200px;aspect-ratio:3/4;border-radius:22px;background:var(--hero) center/cover;flex:none}
+.page{max-width:1280px}
+.rte .ed{min-height:300px;max-height:none;resize:vertical}#contentInput .ed{min-height:55vh}
+.rte.fs{position:fixed;inset:0;z-index:60;border-radius:0;margin:0;display:flex;flex-direction:column;border:0}
+.rte.fs .ed{flex:1;max-height:none;resize:none;font-size:18px;width:min(100%,920px);margin:0 auto}
+#reader{background:var(--bg);color:var(--tx);min-height:100vh}
+#reader.dk{--bg:#1c1420;--card:#2a1d2d;--line:#4a3450;--tx:#f6e7ef;--mu:#c8a8ba;--hero:#3b2842;--head:#ffb6cf;--side:#2a1d2d}
+#reader .rhead{background:var(--card);border-color:var(--line);padding:12px 32px}
+#reader .panel,#reader .row,#reader .lang,#reader select,#reader input{background:var(--card);color:var(--tx);border-color:var(--line)}
+#reader .fold{--fb:var(--card)}
+.rlogo b{color:var(--ac)}.rhead nav{display:flex;gap:4px;margin-left:18px}.rhead nav a{padding:9px 16px;border-radius:999px;font-weight:700;color:var(--mu);cursor:pointer}.rhead nav a:hover,.rhead nav a.on{background:var(--hero);color:var(--head)}
+.rhead input#rSearch{display:none;flex:0 1 260px;min-width:120px}.rhead input#rSearch.show{display:block}
+.icon{width:42px;height:42px;padding:0;border-radius:50%;background:var(--card);border:1.5px solid var(--ac);color:var(--tx);font-size:16px}.icon:hover{background:var(--hero)}
+.rmain{max-width:1400px}
+.hero3{position:relative;height:clamp(210px,34vw,400px);margin:8px 0 44px}
+.hc{position:absolute;top:50%;transform:translate(-50%,-50%);border-radius:28px;background:linear-gradient(135deg,#f3b6c8,#c25b7e) center/cover;cursor:pointer;transition:all .4s;box-shadow:0 10px 30px rgba(143,53,82,.25);display:flex;align-items:flex-end;overflow:hidden}
+.hc.o0{left:50%;width:52%;height:100%;z-index:2}.hc.o-1{left:21%;width:42%;height:80%;opacity:.8}.hc.o1{left:79%;width:42%;height:80%;opacity:.8}
+.hct{padding:22px 26px;color:#fff}.hct h2{color:#fff;font-size:clamp(18px,3vw,32px);margin:6px 0}.hct p{margin:0;opacity:.92;font-size:15px}
+.pills{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 20px}
+.pill{border-radius:999px;padding:10px 22px;background:var(--card);color:var(--tx);border:1.5px solid var(--line);font-weight:700;font-size:15px;width:auto;margin:0}
+.pill:hover{background:var(--hero)}.pill.on,.pill.on:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
+.grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:22px}
+.rib{position:absolute;top:0;left:0;padding:6px 16px 7px 14px;border-radius:0 0 18px 0;font-weight:800;font-size:14px;color:#fff;background:#9b7aa8}.rib.full{background:var(--ac)}
+@media(max-width:860px){.rhead nav{display:none}.hc.o-1,.hc.o1{display:none}.hc.o0{width:96%}.rhead,.rmain{padding-left:14px;padding-right:14px}.dhead .im{width:140px}.foot{margin:0 0 0 auto;flex-direction:row;align-items:center}.foot .mu,.foot .bar{display:none}
+ .shell{grid-template-columns:1fr}
+ aside{position:static;height:auto;flex-direction:row;align-items:center;padding:12px;overflow-x:auto}
+ .brand div{display:none}
+ nav{flex-direction:row}
+ .top,.page{padding-left:16px;padding-right:16px}
+ .hero{padding:24px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="reader" class="hidden">
+  <header class="rhead"><span class="rlogo" onclick="rNav('home')">🌸 <b>Pink</b>Story</span>
+    <nav><a data-n="hot" onclick="rNav('hot')" data-l="🔥 Truyện hot|🔥 Hot"></a><a data-n="lib" onclick="rNav('lib')" data-l="📚 Kho truyện|📚 Library"></a></nav>
+    <span class="grow"></span>
+    <input id="rSearch" data-lp="Tìm truyện...|Search stories..." /><button class="icon" id="rSearchBtn" title="Search">🔍</button><button class="icon" id="rTheme" title="Theme">🌙</button>
+    <div class="lang" data-lang></div><button id="toStudio" data-l="✍️ Đăng nhập tác giả|✍️ Author login"></button></header>
+  <main class="rmain" id="rMain"></main>
+</div>
+<div id="authView">
+  <div class="auth">
+    <div class="top"><button type="button" class="ghost sm" id="authBack" style="margin-right:auto" data-l="← Trang độc giả|← Reader site"></button><div class="lang" data-lang></div></div>
+    <h1>🌸 Pink Story</h1>
+    <p class="mu" style="text-align:center;margin:0 0 20px" data-i18n="tagline"></p>
+    <form id="authForm">
+      <label for="authUser" data-i18n="username"></label>
+      <input type="email" id="authUser" required autocomplete="email" />
+      <label for="authPass" data-i18n="password"></label>
+      <input type="password" id="authPass" required minlength="6" autocomplete="current-password" />
+      <button type="submit" id="authSubmit"></button>
+      <p class="err" id="authError"></p>
+    </form>
+    <button type="button" class="ghost" id="googleBtn" style="width:100%;margin-bottom:12px" data-i18n="google"></button>
+    <p style="text-align:center;margin:0 0 10px"><a href="#" id="forgot" class="mu" data-i18n="forgot"></a></p>
+    <p class="mu" style="text-align:center"><span id="authToggleText"></span> <a href="#" id="authToggle" style="color:var(--ac-d);font-weight:700"></a></p>
+  </div>
+</div>
+
+<div class="shell hidden" id="shell">
+  <aside>
+    <div class="brand"><div class="logo">📖</div><div><b>Pink Story</b><span class="mu" data-i18n="brandSub"></span></div></div>
+    <nav>
+      <a data-nav="home">🏠 <span data-i18n="navHome"></span></a>
+      <a data-nav="trash">🗑️ <span data-i18n="navTrash"></span><span class="badge hidden" id="trashBadge"></span></a>
+      <a id="toReaderNav">🌐 <span data-l="Trang độc giả|Reader site"></span></a>
+    </nav>
+    <div class="foot"><div class="mu" id="usage" style="font-size:12px"></div>
+      <button class="ghost sm" id="exportBtn" data-i18n="export"></button>
+      <label class="lbl" for="importFile" data-i18n="import"></label><input type="file" id="importFile" accept="application/json,.json" hidden></div>
+  </aside>
+  <div class="main">
+    <div class="top">
+      <input class="search" id="searchInput" data-ph="search" />
+      <div class="lang" data-lang></div>
+      <div class="user"><span class="avatar" id="avatar"></span><strong id="userName"></strong><button class="ghost sm" id="logoutBtn" data-i18n="logout"></button></div>
+    </div>
+    <div class="page">
+
+      <section id="homeView">
+        <div class="hero">
+          <div>
+            <div class="kicker" id="today"></div>
+            <h1 id="welcome"></h1>
+            <p id="summary"></p>
+          </div>
+          <button id="heroNew" data-i18n="newStory"></button>
+        </div>
+        <h2 class="sec" data-i18n="quick"></h2>
+        <div class="qa">
+          <div id="qaNew"><span class="ico">✨</span><span data-i18n="newStory"></span></div>
+          <div id="qaTrash"><span class="ico">🗑️</span><span data-i18n="navTrash"></span></div>
+        </div>
+        <div class="panel"><h2 data-i18n="yourStories"></h2><div id="storyList"></div></div>
+        
+      </section>
+
+      <section id="storyView" class="hidden">
+        <button class="ghost sm back" id="backBtn" data-i18n="back"></button>
+        <div id="storyBody"></div>
+        <div class="panel" id="addPartPanel">
+          <h2 id="partFormTitle"></h2>
+          <form id="createPartForm">
+            <label for="partNameInput" data-i18n="partName"></label>
+            <input id="partNameInput" required />
+            <label for="chapterNumInput" data-i18n="chapterNum"></label>
+            <input type="number" id="chapterNumInput" min="1" />
+            <label for="contentInput" data-i18n="content"></label>
+            <div id="contentInput"></div>
+            <label for="imageInput" data-i18n="image"></label>
+            <input type="file" id="imageInput" accept="image/*" />
+            <label class="chk"><input type="checkbox" id="partDraft"><span data-l="Bản nháp (chưa hiện cho độc giả)|Draft (hidden from readers)"></span></label><div id="partImgPrev" style="margin-bottom:14px"></div><div class="acts"><button type="submit" id="partSubmit"></button><button type="button" class="ghost hidden" id="partCancel" onclick="resetPart()" data-i18n="cancel"></button></div>
+          </form>
+        </div>
+        <button class="cta" id="cta" data-i18n="writeChapter"></button>
+      </section>
+
+      <section id="formView" class="hidden">
+        <h1 id="formTitle" style="margin-bottom:18px"></h1>
+        <form id="storyForm">
+          <div class="panel"><h2 data-i18n="basics"></h2>
+            <label for="fTitle" data-i18n="storyName"></label><input id="fTitle" required />
+            <label for="fTag" data-i18n="tagline"></label><input id="fTag" maxlength="160" data-ph="taglinePh" />
+            <label for="fTags" data-i18n="tags"></label><input id="fTags" data-ph="tagsPh" />
+            <label for="fCover" data-i18n="cover"></label><input type="file" id="fCover" accept="image/*" /><div id="coverPrev"></div>
+          </div>
+          <div class="panel"><h2 data-l="Xuất bản & hiển thị|Publishing"></h2>
+            <label data-l="Trạng thái|Status"></label><select id="fPub"><option value="draft" data-l="Bản nháp (chỉ mình tôi)|Draft (only me)"></option><option value="published" data-l="Đã xuất bản (độc giả thấy)|Published (visible to readers)"></option><option value="private" data-l="Riêng tư|Private"></option></select>
+            <label data-l="Tiến độ|Progress"></label><select id="fProg"><option value="ongoing" data-l="Đang cập nhật|Ongoing"></option><option value="full" data-l="Hoàn thành (Full)|Completed (Full)"></option></select>
+            <label class="chk"><input type="checkbox" id="fFeat"><span data-l="Hiện ở banner nổi bật|Show in featured banner"></span></label>
+            <label class="chk"><input type="checkbox" id="fHot"><span data-l="Đánh dấu truyện hot|Mark as hot"></span></label>
+          </div>
+          <div class="panel"><h2 data-i18n="texts"></h2>
+            <label data-i18n="pubInfo"></label><div id="fInfo"></div>
+            <label data-i18n="opening"></label><div id="fOpen"></div>
+          </div>
+          <div class="panel"><h2 data-l="🔒 Ghi chú riêng của tác giả|🔒 Private author notes"></h2>
+            <label data-l="Bối cảnh & thế giới truyện|World & setting"></label><div id="fWorld"></div>
+            <label data-l="Mốc thời gian|Timeline"></label><div id="fTime"></div>
+            <label data-l="Ghi chú sáng tác|Writing notes"></label><div id="fNote"></div>
+          </div>
+          <div class="acts"><button type="submit" data-i18n="save"></button><button type="button" class="ghost" id="cancelForm" data-i18n="cancel"></button></div>
+        </form>
+      </section>
+
+      <section id="readView" class="hidden"></section>
+      <section id="charView" class="hidden"></section>
+
+      <section id="trashView" class="hidden">
+        <div class="trash-bar">
+          <h1 data-i18n="navTrash"></h1>
+          <button class="danger sm" id="emptyBtn" data-i18n="emptyTrash"></button>
+        </div>
+        <div class="note" data-i18n="trashNote"></div>
+        <div class="panel"><h2 data-i18n="deletedStories"></h2><div id="trashStories"></div></div>
+        <div class="panel"><h2 data-i18n="deletedParts"></h2><div id="trashParts"></div></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const LS={users:'pinkstory_users',session:'pinkstory_session',stories:'pinkstory_stories',lang:'pinkstory_lang'};
+/* ---------- Supabase config: dán thông tin dự án của bạn vào đây ---------- */
+const SUPABASE_URL='https://wirgifypvpgtghkaowhb.supabase.co',SUPABASE_KEY='sb_publishable_xlUwzARrTh-Ek6UjifR1RQ_TpKhvrPF';
+const configured=!SUPABASE_URL.startsWith('PASTE')&&window.supabase;
+let sb=null,cloudUser=null,uidNow=null,syncQ=Promise.resolve(),synced={},syncState='synced';
+const KEY='pinkstory_stories',mem={};
+const load=(k,f)=>{try{const raw=k===KEY?mem[k]:localStorage.getItem(k);return raw==null?f:(JSON.parse(raw)??f)}catch{return f}};
+const save=(k,v)=>{const raw=JSON.stringify(v);
+  if(k===KEY){mem[k]=raw;const snap=snapshot(v),psn=pubSnapshot(v);syncQ=syncQ.then(()=>syncSnap(snap)).then(()=>syncPub(psn)).catch(e=>{setSync('syncErr');alert(t('syncFail')+' '+(e.message||''))})}
+  else localStorage.setItem(k,raw)};
+function setSync(x){syncState=x;if(typeof updUsage==='function')updUsage()}
+/* mỗi truyện = 1 dòng, mỗi chương = 1 dòng trong bảng "docs" */
+function snapshot(all){const m={};all.forEach(st=>{if(st.userId!==uidNow)return;const {parts,...meta}=st;
+  m['s:'+st.id]={j:JSON.stringify(meta)};
+  (parts||[]).forEach((p,i)=>{m['p:'+p.id]={j:JSON.stringify({...p,storyId:st.id,order:i})}})});return m}
+async function syncSnap(cur){
+  const sets=[],dels=[];
+  for(const k in cur)if(synced[k]!==cur[k].j)sets.push(k);
+  for(const k in synced)if(!cur[k])dels.push(k);
+  if(!sets.length&&!dels.length)return;setSync('saving');
+  let batch=[],size=0;
+  const flush=async()=>{if(!batch.length)return;
+    const {error}=await sb.from('docs').upsert(batch.map(k=>({user_id:uidNow,key:k,data:JSON.parse(cur[k].j)})),{onConflict:'user_id,key'});
+    if(error)throw error;batch.forEach(k=>synced[k]=cur[k].j);batch=[];size=0};
+  for(const k of sets){if(batch.length&&size+cur[k].j.length>1500000)await flush();batch.push(k);size+=cur[k].j.length}
+  await flush();
+  for(let i=0;i<dels.length;i+=100){const c=dels.slice(i,i+100),{error}=await sb.from('docs').delete().eq('user_id',uidNow).in('key',c);
+    if(error)throw error;c.forEach(k=>delete synced[k])}
+  setSync('synced');
+}
+async function loadCloud(u){
+  const rows=[];
+  for(let from=0;;from+=20){const {data,error}=await sb.from('docs').select('key,data').order('key').range(from,from+19);if(error)throw error;rows.push(...data);if(data.length<20)break}
+  const parts={},all=[];
+  rows.forEach(r=>{if(r.key[0]==='p'){(parts[r.data.storyId]=parts[r.data.storyId]||[]).push(r.data)}});
+  rows.forEach(r=>{if(r.key[0]==='s'){const st={...r.data,userId:u.id};
+    st.parts=(parts[st.id]||[]).sort((a,b)=>a.order-b.order).map(({storyId,order,...p})=>p);all.push(st)}});
+  uidNow=u.id;mem[KEY]=JSON.stringify(all);synced={};const f=snapshot(all);for(const k in f)synced[k]=f[k].j;
+}
+async function readLegacy(){
+  let raw=localStorage.getItem(KEY);
+  try{const d=await new Promise((res,rej)=>{const r=indexedDB.open('pinkstory');r.onerror=()=>rej();r.onsuccess=()=>{const x=r.result;
+    if(!x.objectStoreNames.contains('kv')){x.close();return res(null)}const q=x.transaction('kv').objectStore('kv').get(KEY);q.onsuccess=()=>{x.close();res(q.result)};q.onerror=()=>rej()}});raw=d||raw}catch{}
+  try{return JSON.parse(raw)||[]}catch{return[]}
+}
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+async function hashPassword(p){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p+'::salt'));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
+
+/* ---------- i18n ---------- */
+const I18N={
+vi:{tagline:'Nơi lưu giữ những câu chuyện của bạn',username:'Email',password:'Mật khẩu (≥ 6 ký tự)',login:'Đăng nhập',register:'Đăng ký',noAcc:'Chưa có tài khoản?',hasAcc:'Đã có tài khoản?',signUpNow:'Đăng ký ngay',
+ authReq:'Nhập email và mật khẩu (≥ 6 ký tự).',exists:'Email này đã được đăng ký.',wrong:'Sai email hoặc mật khẩu.',
+ brandSub:'Góc sáng tác',navHome:'Trang chủ',navTrash:'Thùng rác',search:'Tìm truyện, chương...',logout:'Đăng xuất',
+ hello:'Xin chào',welcomeBack:'Chào mừng trở lại,',summary:(s,p,t)=>`Bạn có ${s} truyện, ${p} chương và ${t} mục trong thùng rác.`,
+ newStory:'Tạo truyện mới',quick:'THAO TÁC NHANH',yourStories:'Truyện của bạn',addStory:'Thêm truyện mới',storyName:'Tên truyện *',storyDesc:'Mô tả ngắn',descPh:'Tóm tắt nội dung...',createStory:'+ Tạo truyện',
+ noStories:'Bạn chưa có truyện nào. Hãy tạo truyện đầu tiên bên dưới 🌸',noMatch:'Không tìm thấy kết quả.',noDesc:'Không có mô tả',parts:n=>`${n} phần`,manage:'Quản lý',del:'Xoá',
+ back:'← Về trang chủ',chapters:'Các phần / chương',addPart:'Thêm phần mới',partName:'Tên phần *',chapterNum:'Số chương',content:'Nội dung',image:'Ảnh minh hoạ (tuỳ chọn, < 20MB)',addPartBtn:'+ Thêm phần',
+ noParts:'Chưa có phần nào. Hãy thêm phần đầu tiên bên dưới 🌸',chapter:'Chương',
+ emptyTrash:'Dọn sạch thùng rác',trashNote:'Mục bị xoá sẽ nằm ở đây. Bạn có thể khôi phục bất cứ lúc nào — chỉ khi xoá vĩnh viễn ở đây thì mới mất hẳn.',
+ deletedStories:'Truyện đã xoá',deletedParts:'Chương đã xoá',trashEmpty:'Trống 🌸',restore:'Khôi phục',purge:'Xoá vĩnh viễn',deletedAt:'Xoá lúc',fromStory:'Thuộc truyện',
+ movedStory:'Đã chuyển truyện vào thùng rác',movedPart:'Đã chuyển chương vào thùng rác',undo:'Hoàn tác',restored:'Đã khôi phục',
+ confirmPurge:'Xoá vĩnh viễn? Không thể khôi phục lại!',confirmEmpty:'Xoá vĩnh viễn TẤT CẢ mục trong thùng rác? Không thể khôi phục!',purged:'Đã xoá vĩnh viễn',
+ editStory:'Chỉnh sửa truyện',basics:'Thông tin cơ bản',tagline:'Câu giới thiệu ngắn',taglinePh:'Một câu hook thật ngắn...',tags:'Thẻ (cách nhau bằng dấu phẩy)',tagsPh:'Mafia, Nhà giàu, Lạnh lùng',cover:'Ảnh bìa (tuỳ chọn)',
+ characters:'Nhân vật',mainChar:'Nhân vật chính',avatar:'Ảnh đại diện',npcs:'NPC',npcName:'Tên NPC',npcDesc:'Mô tả ngắn',addNpc:'+ Thêm NPC',texts:'Nội dung',pubInfo:'Thông tin công khai',pubInfoPh:'Giới thiệu nhân vật, bối cảnh...',paraHint:'Mỗi đoạn cách nhau một dòng. Bọc chữ bằng *dấu sao* để in nghiêng.',opening:'Mở đầu câu chuyện',openingPh:'Cảnh mở đầu...',
+ save:'Lưu truyện',cancel:'Huỷ',tabInfo:'Câu chuyện',tabParts:'Chương',storyInfo:'Thông tin câu chuyện',more:'Xem thêm ⌄',less:'Thu gọn ⌃',open:'Mở',edit:'Sửa',writeChapter:'+ Viết chương mới',emptyInfo:'Chưa có thông tin chi tiết. Bấm "Sửa" để thêm nhân vật, mở đầu và thông tin công khai.',
+ export:'💾 Sao lưu (tải file)',import:'📂 Nhập file sao lưu',storage:'Dung lượng',exported:'Đã tải file sao lưu',imported:'Đã nhập dữ liệu',confirmImport:n=>`Nhập ${n} truyện từ file? Truyện trùng sẽ được ghi đè.`,badFile:'File không hợp lệ.',
+ read:'Đọc truyện',back2:'← Quay lại',sortNum:'Xếp theo số chương',editPart:'Sửa chương',saveEdit:'Lưu thay đổi',removeImg:'Xoá ảnh',noPages:'Chưa có nội dung để đọc.',prev:'← Trước',next:'Sau →',
+ google:'Đăng nhập bằng Google',forgot:'Quên mật khẩu?',resetSent:'Đã gửi email đặt lại mật khẩu. Hãy kiểm tra hộp thư.',badEmail:'Email không hợp lệ.',loadFail:'Không tải được dữ liệu từ máy chủ. Kiểm tra mạng và cấu hình Supabase (bảng docs, quyền RLS).',
+ syncFail:'Lưu lên máy chủ thất bại:',docBig:'Một mục quá lớn (>1MB). Hãy dùng ảnh nhỏ hơn.',saving:'☁️ Đang đồng bộ...',synced:'☁️ Đã đồng bộ',syncErr:'⚠️ Lỗi đồng bộ',loading:'Đang tải dữ liệu...',
+ noConfig:'Chưa cấu hình Supabase. Mở file bằng trình soạn thảo và dán Project URL cùng anon key vào SUPABASE_URL, SUPABASE_KEY ở đầu phần <script>.',migrate:n=>`Tìm thấy ${n} truyện lưu trên máy này. Đưa lên tài khoản của bạn?`,
+ noLib:'Không tải được thư viện Supabase. Kiểm tra kết nối mạng rồi tải lại trang.',confirmEmail:'Đã gửi email xác nhận. Hãy mở email để kích hoạt tài khoản rồi đăng nhập.',newPass:'Nhập mật khẩu mới (≥ 6 ký tự):',passChanged:'Đã đổi mật khẩu.',
+ big:'Ảnh vượt quá 20MB.',notImg:'Chỉ chấp nhận file ảnh!',full:'Bộ nhớ trình duyệt đã đầy (ảnh quá nhiều).'},
+en:{tagline:'A cozy place for your stories',username:'Email',password:'Password (≥ 6 characters)',login:'Log in',register:'Sign up',noAcc:"Don't have an account?",hasAcc:'Already have an account?',signUpNow:'Sign up now',
+ authReq:'Enter an email and a password of at least 6 characters.',exists:'That email is already registered.',wrong:'Wrong email or password.',
+ brandSub:'Writing corner',navHome:'Dashboard',navTrash:'Trash',search:'Search stories, chapters...',logout:'Log out',
+ hello:'Hello',welcomeBack:'Welcome back,',summary:(s,p,t)=>`You have ${s} stories, ${p} chapters and ${t} items in the trash.`,
+ newStory:'New story',quick:'QUICK ACTIONS',yourStories:'Your stories',addStory:'Add a new story',storyName:'Story title *',storyDesc:'Short description',descPh:'Summarize your story...',createStory:'+ Create story',
+ noStories:'No stories yet. Create your first one below 🌸',noMatch:'No results found.',noDesc:'No description',parts:n=>`${n} chapter${n===1?'':'s'}`,manage:'Manage',del:'Delete',
+ back:'← Back to dashboard',chapters:'Chapters',addPart:'Add a new chapter',partName:'Chapter title *',chapterNum:'Chapter number',content:'Content',image:'Illustration (optional, < 20MB)',addPartBtn:'+ Add chapter',
+ noParts:'No chapters yet. Add the first one below 🌸',chapter:'Chapter',
+ emptyTrash:'Empty trash',trashNote:'Deleted items land here. Restore them any time — they are only gone for good when you delete them permanently from this page.',
+ deletedStories:'Deleted stories',deletedParts:'Deleted chapters',trashEmpty:'Nothing here 🌸',restore:'Restore',purge:'Delete forever',deletedAt:'Deleted',fromStory:'From story',
+ movedStory:'Story moved to trash',movedPart:'Chapter moved to trash',undo:'Undo',restored:'Restored',
+ confirmPurge:'Delete permanently? This cannot be undone!',confirmEmpty:'Permanently delete EVERYTHING in the trash? This cannot be undone!',purged:'Deleted permanently',
+ editStory:'Edit story',basics:'Basics',tagline:'Short tagline',taglinePh:'One short hook line...',tags:'Tags (comma separated)',tagsPh:'Mafia, Rich, Cold',cover:'Cover image (optional)',
+ characters:'Characters',mainChar:'Main character',avatar:'Avatar',npcs:'NPCs',npcName:'NPC name',npcDesc:'Short description',addNpc:'+ Add NPC',texts:'Content',pubInfo:'Public info',pubInfoPh:'Character intro, setting...',paraHint:'Separate paragraphs with a new line. Wrap text in *asterisks* for italics.',opening:'Story opening',openingPh:'Opening scene...',
+ save:'Save story',cancel:'Cancel',tabInfo:'Story',tabParts:'Chapters',storyInfo:'Story info',more:'Show more ⌄',less:'Show less ⌃',open:'Open',edit:'Edit',writeChapter:'+ Write new chapter',emptyInfo:'No details yet. Press "Edit" to add characters, an opening and public info.',
+ export:'💾 Backup (download)',import:'📂 Import backup file',storage:'Storage',exported:'Backup downloaded',imported:'Data imported',confirmImport:n=>`Import ${n} stories from file? Stories with the same ID will be overwritten.`,badFile:'Invalid file.',
+ read:'Read story',back2:'← Back',sortNum:'Sort by number',editPart:'Edit chapter',saveEdit:'Save changes',removeImg:'Remove image',noPages:'Nothing to read yet.',prev:'← Prev',next:'Next →',
+ google:'Sign in with Google',forgot:'Forgot password?',resetSent:'Password reset email sent. Check your inbox.',badEmail:'Invalid email.',loadFail:'Could not load data from the server. Check your connection and Supabase setup (docs table, RLS policy).',
+ syncFail:'Saving to the server failed:',docBig:'An item is too large (>1MB). Use a smaller image.',saving:'☁️ Syncing...',synced:'☁️ Synced',syncErr:'⚠️ Sync error',loading:'Loading data...',
+ noConfig:'Supabase is not configured. Open the file in an editor and paste your Project URL and anon key into SUPABASE_URL and SUPABASE_KEY at the top of the <script>.',migrate:n=>`Found ${n} stories stored on this device. Upload them to your account?`,
+ noLib:'Could not load the Supabase library. Check your connection and reload.',confirmEmail:'Confirmation email sent. Open it to activate your account, then log in.',newPass:'Enter a new password (≥ 6 characters):',passChanged:'Password changed.',
+ big:'Image is larger than 20MB.',notImg:'Only image files are allowed!',full:'Browser storage is full (too many images).'}
+};
+let editingId=null,partEditId=null,partImg=null,draft={},storyTab='info',lang=load(LS.lang,'vi'),view='home',currentStoryId=null,authMode='login',q='';
+const t=k=>I18N[lang][k];
+
+function applyI18n(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t(e.dataset.i18n));
+  document.querySelectorAll('[data-ph]').forEach(e=>e.placeholder=t(e.dataset.ph));
+  document.querySelectorAll('[data-l]').forEach(e=>{const p=e.dataset.l.split('|');e.textContent=lang==='vi'?p[0]:p[1]});
+  document.querySelectorAll('[data-lp]').forEach(e=>{const p=e.dataset.lp.split('|');e.placeholder=lang==='vi'?p[0]:p[1]});
+  document.querySelectorAll('[data-lang]').forEach(box=>{
+    box.innerHTML=['vi','en'].map(l=>`<button class="${l===lang?'on':''}" data-set="${l}">${l==='vi'?'Tiếng Việt':'English'}</button>`).join('');
+  });
+  setAuthMode(authMode); if(!$('shell').classList.contains('hidden')) render();if(mode==='reader'&&R.stories)renderReader();
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-set]');if(b){lang=b.dataset.set;save(LS.lang,lang);applyI18n()}});
+
+/* ---------- auth ---------- */
+const sessionUser=()=>cloudUser?{id:cloudUser.id,username:cloudUser.user_metadata?.full_name||cloudUser.email}:null;
+function setAuthMode(m){authMode=m;const l=m==='login';
+  $('authSubmit').textContent=l?t('login'):t('register');$('authToggleText').textContent=l?t('noAcc'):t('hasAcc');
+  $('authToggle').textContent=l?t('signUpNow'):t('login');$('authError').textContent=configured?'':t(window.supabase?'noConfig':'noLib')}
+$('authToggle').onclick=e=>{e.preventDefault();setAuthMode(authMode==='login'?'register':'login')};
+function authMsg(e){const m=e.message||String(e);
+  if(/invalid login/i.test(m))return t('wrong');if(/already registered/i.test(m))return t('exists');if(/at least/i.test(m))return t('authReq');
+  if(/not confirmed/i.test(m))return t('confirmEmail');if(/invalid|unable to validate/i.test(m)&&/email/i.test(m))return t('badEmail');return m}
+const failWith=(msg,ok)=>{$('authError').style.color=ok?'var(--head)':'';$('authError').textContent=msg};
+$('authForm').onsubmit=async e=>{
+  e.preventDefault();const em=$('authUser').value.trim(),p=$('authPass').value;failWith('');
+  if(!configured)return failWith(t('noConfig'));if(!em||p.length<6)return failWith(t('authReq'));
+  const r=authMode==='register'?await sb.auth.signUp({email:em,password:p}):await sb.auth.signInWithPassword({email:em,password:p});
+  if(r.error)return failWith(authMsg(r.error));
+  if(authMode==='register'&&!r.data.session)failWith(t('confirmEmail'),true);
+};
+$('googleBtn').onclick=async()=>{if(!configured)return failWith(t('noConfig'));
+  const r=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href.split('#')[0]}});if(r.error)failWith(authMsg(r.error))};
+$('forgot').onclick=async e=>{e.preventDefault();const em=$('authUser').value.trim();if(!configured)return failWith(t('noConfig'));if(!em)return failWith(t('badEmail'));
+  const r=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.href.split('#')[0]});failWith(r.error?authMsg(r.error):t('resetSent'),!r.error)};
+function enter(){
+  const u=sessionUser();$('reader').classList.toggle('hidden',mode!=='reader');
+  if(mode==='reader'){$('shell').classList.add('hidden');$('authView').classList.add('hidden');renderReader();loadPub().then(renderReader);return}
+  if(!u){$('shell').classList.add('hidden');$('authView').classList.remove('hidden');return}
+  $('authForm').reset();$('authView').classList.add('hidden');$('shell').classList.remove('hidden');go('home')}
+$('logoutBtn').onclick=()=>sb&&sb.auth.signOut();
+
+/* ---------- data ---------- */
+const mine=()=>{const u=sessionUser();return u?load(LS.stories,[]).filter(s=>s.userId===u.id):[]};
+function mutate(fn){const u=sessionUser(),all=load(LS.stories,[]);fn(all.filter(s=>s.userId===u.id),all);
+  try{save(LS.stories,all)}catch{alert(t('full'));return false}return true}
+const alive=s=>!s.deletedAt;
+const fmt=ts=>new Date(ts).toLocaleString(lang==='vi'?'vi-VN':'en-US',{dateStyle:'medium',timeStyle:'short'});
+
+/* ---------- navigation / render ---------- */
+function go(v,id){view=v;if(id!==undefined)currentStoryId=id;if(v==='story'){storyTab='info';partEditId=null;partImg=null;$('createPartForm').reset();$('contentInput')._set&&$('contentInput')._set('')}render();window.scrollTo({top:0})}
+document.querySelectorAll('[data-nav]').forEach(a=>a.onclick=()=>go(a.dataset.nav));
+$('qaTrash').onclick=()=>go('trash');
+const focusNew=()=>openForm(null);
+$('qaNew').onclick=focusNew;$('heroNew').onclick=focusNew;
+$('backBtn').onclick=()=>go('home');
+$('searchInput').oninput=e=>{q=e.target.value.trim().toLowerCase();if(view==='story')view='home';render()};
+
+function render(){
+  const u=sessionUser();if(!u)return;
+  $('userName').textContent=u.username;$('avatar').textContent=u.username[0].toUpperCase();
+  ['home','story','trash','form','read','char'].forEach(v=>$(v+'View').classList.toggle('hidden',v!==view));
+  document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===(view==='trash'?'trash':'home')));
+  const all=mine(),trashN=all.filter(s=>s.deletedAt).length+all.filter(alive).reduce((n,s)=>n+s.parts.filter(p=>p.deletedAt).length,0);
+  const b=$('trashBadge');b.textContent=trashN;b.classList.toggle('hidden',!trashN);updUsage();
+  if(view==='home')renderHome(all,trashN);else if(view==='story')renderStory();else if(view==='form')renderDraft();else if(view==='read')renderRead();else if(view==='char')renderChar();else renderTrash(all);
+}
+
+function renderHome(all,trashN){
+  const live=all.filter(alive),pc=live.reduce((n,s)=>n+s.parts.filter(p=>!p.deletedAt).length,0);
+  $('today').textContent=new Date().toLocaleDateString(lang==='vi'?'vi-VN':'en-US',{weekday:'long',day:'numeric',month:'long'});
+  $('welcome').textContent=`${t('welcomeBack')} ${sessionUser().username}!`;
+  $('summary').textContent=t('summary')(live.length,pc,trashN);
+  const list=live.filter(s=>!q||(s.title+' '+tagOf(s)+' '+(s.tags||[]).join(' ')).toLowerCase().includes(q));
+  $('storyList').innerHTML=!live.length?`<p class="mu">${t('noStories')}</p>`:!list.length?`<p class="mu">${t('noMatch')}</p>`:list.map(s=>`
+   <div class="row"><div class="rw">${s.cover?`<img class="thumb" src="${s.cover}" alt="">`:'<span class="thumb ph">📖</span>'}<div style="min-width:0"><h3>${esc(s.title)}</h3><p class="mu clamp">${esc(tagOf(s)||infoOf(s)||t('noDesc'))}</p>
+   <p style="margin-top:8px"><span class="tag">${stLabel(s)}</span>${(s.tags||[]).slice(0,4).map(x=>`<span class="tag">${esc(x)}</span>`).join('')}<span class="tag">${t('parts')(s.parts.filter(p=>!p.deletedAt).length)}</span></p></div></div>
+   <div class="acts"><button class="sm" onclick="go('story','${s.id}')">${t('open')}</button><button class="ghost sm" onclick="openForm('${s.id}')">${t('edit')}</button><button class="danger sm" onclick="delStory('${s.id}')">${t('del')}</button></div></div>`).join('');
+}
+const tagOf=s=>s.tagline!==undefined?s.tagline:((s.description||'').length<=140?(s.description||''):'');
+const infoOf=s=>s.info!==undefined?s.info:((s.description||'').length>140?s.description:'');
+const para=x=>esc(x).split(/\n+/).filter(l=>l.trim()).map(l=>`<p>${l.replace(/\*([^*]+)\*/g,'<em>$1</em>')}</p>`).join('');
+const fold=(id,txt)=>`<div class="fold" id="${id}"><div class="fold-in">${rich(txt)}</div><button class="link" onclick="toggleFold('${id}',this)">${t('more')}</button></div>`;
+function toggleFold(id,b){const f=$(id);f.classList.toggle('open');b.textContent=t(f.classList.contains('open')?'less':'more')}
+const avatar=a=>a?`<img class="av" src="${a}" alt="">`:'<span class="av ph">👤</span>';
+function setTab(x){storyTab=x;render()}
+function imgToURL(file,max,q=.82){return new Promise((res,rej)=>{if(!/^image\//.test(file.type))return rej();const im=new Image(),u=URL.createObjectURL(file);
+  im.onload=()=>{const r=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*r;c.height=im.height*r;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',q))};
+  im.onerror=rej;im.src=u})}
+
+function renderStory(){
+  const s=mine().find(x=>x.id===currentStoryId&&alive(x));if(!s)return go('home');
+  const ps=s.parts.filter(p=>!p.deletedAt),mc=charsOf(s).find(c=>c.cat==='main')||{},info=infoOf(s);
+  const chars=charsOf(s).map(c=>`<div class="char">${avatar(c.avatar)}<div><small>${L(CATS.find(x=>x[0]===c.cat)[1],CATS.find(x=>x[0]===c.cat)[2])}</small><b>${esc(c.name)}</b></div></div>`).join('');
+  let h=`<div class="cover" style="${s.cover?`background-image:linear-gradient(#0000,#0000),url('${s.cover}')`:''}"><div class="cover-in"><h1>${esc(s.title)}</h1>${tagOf(s)?`<p>${esc(tagOf(s))}</p>`:''}
+   <div><span class="tag">${stLabel(s)}</span>${(s.tags||[]).map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div><div class="acts" style="margin-top:14px"><button class="sm" onclick="togglePub('${s.id}')">${s.pub==='published'?'🚫 '+L('Gỡ xuất bản','Unpublish'):'🌐 '+L('Xuất bản','Publish')}</button><button class="sm" onclick="openRead('${s.id}')">📖 ${t('read')}</button><button class="ghost sm" onclick="openForm('${s.id}')">✏️ ${t('edit')}</button></div></div></div>
+   <div class="tabs"><button class="${storyTab==='info'?'on':''}" onclick="setTab('info')">${t('tabInfo')}</button><button class="${storyTab==='parts'?'on':''}" onclick="setTab('parts')">${t('tabParts')} (${ps.length})</button><button class="${storyTab==='chars'?'on':''}" onclick="setTab('chars')">${L('Nhân vật','Characters')} (${charsOf(s).length})</button></div>`;
+  if(storyTab==='info'){
+    h+=`<div class="panel"><h2>${t('storyInfo')}</h2><div class="kv"><span class="mu">${t('storyName').replace(' *','')}</span><b>${esc(s.title)}</b></div>${chars}</div>`;
+    if(s.opening)h+=`<div class="panel"><h2>${t('opening')}</h2><div class="bubble">${avatar(mc.avatar)}<div class="box">${fold('foldOpen',s.opening)}</div></div></div>`;
+    if(info)h+=`<div class="panel"><h2>${t('pubInfo')}</h2>${fold('foldInfo',info)}</div>`;
+    [['world','Bối cảnh & thế giới','World & setting'],['timeline','Mốc thời gian','Timeline'],['note','Ghi chú sáng tác','Writing notes']].forEach(([k,v,e])=>{if(s[k])h+=`<div class="panel"><h2>🔒 ${L(v,e)}</h2>${fold('fold_'+k,s[k])}</div>`});
+    if(!s.opening&&!info&&!chars)h+=`<p class="mu">${t('emptyInfo')}</p>`;
+  }else if(storyTab==='chars'){h+=charsPanel()}else h+=`<div class="panel"><div class="trash-bar"><h2 style="margin:0">${t('chapters')}</h2><button class="ghost sm" onclick="sortParts()">↕ ${t('sortNum')}</button></div>${!ps.length?`<p class="mu">${t('noParts')}</p>`:ps.map((p,i)=>`
+   <div class="part"><div class="hd"><h3>${p.chapterNumber?`${t('chapter')} ${p.chapterNumber} — `:''}${esc(p.partName)}${p.draft?` <span class="tag">${L('Nháp','Draft')}</span>`:''}</h3>
+   <div class="acts"><button class="ghost sm" ${i?'':'disabled'} onclick="moveP('${p.id}',-1)">↑</button><button class="ghost sm" ${i<ps.length-1?'':'disabled'} onclick="moveP('${p.id}',1)">↓</button><button class="ghost sm" onclick="startPart('${p.id}')">✏️</button><button class="danger sm" onclick="delPart('${p.id}')">${t('del')}</button></div></div>
+   ${p.image?`<img class="part-img" src="${p.image}" alt="" />`:''}${p.content?fold('fp'+p.id,p.content):''}</div>`).join('')}</div>`;
+  $('storyBody').innerHTML=h;if(storyTab==='chars')fillChars();$('addPartPanel').classList.toggle('hidden',storyTab!=='parts');renderPartForm();
+  document.querySelectorAll('.fold').forEach(f=>{if(f.querySelector('.fold-in').scrollHeight<=245)f.classList.add('open','short')});
+}
+$('cta').onclick=()=>startPart(null);
+
+/* ---------- story form ---------- */
+function openForm(id){
+  editingId=id;const s=id?mine().find(x=>x.id===id):null;draft={cover:s?.cover||null};
+  $('fTitle').value=s?.title||'';$('fTag').value=s?tagOf(s):'';$('fTags').value=(s?.tags||[]).join(', ');
+  $('fInfo')._set(s?infoOf(s):'');$('fOpen')._set(s?.opening||'');$('fWorld')._set(s?.world||'');$('fTime')._set(s?.timeline||'');$('fNote')._set(s?.note||'');
+  $('fPub').value=s?.pub||'draft';$('fProg').value=s?.progress||'ongoing';$('fFeat').checked=!!s?.featured;$('fHot').checked=!!s?.hot;
+  $('fCover').value='';go('form');
+}
+function renderDraft(){
+  $('formTitle').textContent=t(editingId?'editStory':'addStory');
+  $('coverPrev').innerHTML=draft.cover?`<img class="thumb wide" src="${draft.cover}" alt="">`:'';
+}
+$('fCover').onchange=async e=>{const f=e.target.files[0];if(f){try{draft.cover=await imgToURL(f,900)}catch{alert(t('notImg'))}renderDraft()}};
+$('cancelForm').onclick=()=>editingId?go('story',editingId):go('home');
+$('storyForm').onsubmit=e=>{
+  e.preventDefault();const title=$('fTitle').value.trim();if(!title)return;const u=sessionUser();
+  const data={title,tagline:$('fTag').value.trim(),tags:$('fTags').value.split(',').map(x=>x.trim()).filter(Boolean),cover:draft.cover,
+    info:rteGet('fInfo'),opening:rteGet('fOpen'),world:rteGet('fWorld'),timeline:rteGet('fTime'),note:rteGet('fNote'),
+    pub:$('fPub').value,progress:$('fProg').value,featured:$('fFeat').checked,hot:$('fHot').checked};
+  data.description=data.tagline;
+  const ok=mutate((m,all)=>{if(editingId)Object.assign(m.find(s=>s.id===editingId),data);else all.push({id:uid(),userId:u.id,parts:[],...data})});
+  if(ok){const id=editingId;editingId=null;id?go('story',id):go('home')}
+};
+const fileToURL=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});
+const curStory=()=>mine().find(x=>x.id===currentStoryId);
+function renderPartForm(){
+  const s=curStory();$('partFormTitle').textContent=t(partEditId?'editPart':'addPart');$('partSubmit').textContent=t(partEditId?'saveEdit':'addPartBtn');
+  $('partCancel').classList.toggle('hidden',!partEditId);$('chapterNumInput').placeholder=s?String(s.parts.filter(p=>!p.deletedAt).length+1):'';
+  $('partImgPrev').innerHTML=partImg?`<img class="thumb" src="${partImg}" alt=""> <button type="button" class="ghost sm" onclick="partImg=null;renderPartForm()">${t('removeImg')}</button>`:'';
+}
+function startPart(id){
+  storyTab='parts';partEditId=id;const p=id?curStory().parts.find(x=>x.id===id):null;partImg=p?.image||null;
+  $('partNameInput').value=p?.partName||'';$('chapterNumInput').value=p?.chapterNumber||'';$('contentInput')._set(p?.content||'');$('partDraft').checked=!!p?.draft;$('imageInput').value='';
+  render();$('addPartPanel').scrollIntoView({behavior:'smooth'});
+}
+function resetPart(){partEditId=null;partImg=null;$('createPartForm').reset();$('contentInput')._set('');render()}
+function moveP(id,d){mutate(m=>{const s=m.find(x=>x.id===currentStoryId),A=s.parts.filter(p=>!p.deletedAt),i=A.findIndex(p=>p.id===id),j=i+d;if(j<0||j>=A.length)return;
+  const x=s.parts.indexOf(A[i]),y=s.parts.indexOf(A[j]);[s.parts[x],s.parts[y]]=[s.parts[y],s.parts[x]]});render()}
+function sortParts(){mutate(m=>{m.find(x=>x.id===currentStoryId).parts.sort((a,b)=>(a.chapterNumber||1e9)-(b.chapterNumber||1e9))});render()}
+$('createPartForm').onsubmit=async e=>{
+  e.preventDefault();const partName=$('partNameInput').value.trim(),n=$('chapterNumInput').value,file=$('imageInput').files[0];if(!partName)return;
+  let image=partImg;
+  if(file){if(file.size>20*1024*1024)return alert(t('big'));try{image=await imgToURL(file,1200)}catch{return alert(t('notImg'))}}
+  const ok=mutate(m=>{const s=m.find(x=>x.id===currentStoryId),num=n?Number(n):null,content=rteGet('contentInput');
+    if(partEditId)Object.assign(s.parts.find(p=>p.id===partEditId),{partName,chapterNumber:num,content,image,draft:$('partDraft').checked});
+    else s.parts.push({id:uid(),partName,chapterNumber:num||s.parts.filter(p=>!p.deletedAt).length+1,content,image,draft:$('partDraft').checked,createdAt:new Date().toISOString()})});
+  if(ok)resetPart();
+};
+
+/* ---------- reader ---------- */
+let readIdx=0,rs=load('pinkstory_reader',{size:18,theme:'light',serif:true});
+function openRead(id){currentStoryId=id;readIdx=0;go('read')}
+function setRs(k,v){rs[k]=v;rs.size=Math.max(14,Math.min(30,rs.size));save('pinkstory_reader',rs);mode==='reader'?renderReader():renderRead()}
+function readGo(i){readIdx=i;renderRead();window.scrollTo({top:0})}
+function pagesOf(s){const A=[];if(s.opening)A.push({title:t('opening'),content:s.opening});
+  s.parts.filter(p=>!p.deletedAt).forEach(p=>A.push({title:(p.chapterNumber?`${t('chapter')} ${p.chapterNumber} — `:'')+p.partName,content:p.content,image:p.image}));return A}
+function renderRead(){
+  const s=curStory();if(!s||s.deletedAt)return go('home');const pg=pagesOf(s);readIdx=Math.max(0,Math.min(readIdx,pg.length-1));const p=pg[readIdx];
+  $('readView').innerHTML=`<div class="rbar"><button class="ghost sm" onclick="go('story','${s.id}')">${t('back2')}</button>
+   <div class="acts"><button class="ghost sm" onclick="setRs('size',rs.size-2)">A−</button><button class="ghost sm" onclick="setRs('size',rs.size+2)">A+</button>
+   <button class="ghost sm" onclick="setRs('serif',!rs.serif)">${rs.serif?'Aa':'𝐀𝐚'}</button>
+   ${['light','sepia','dark'].map((k,i)=>`<button class="${rs.theme===k?'':'ghost'} sm" onclick="setRs('theme','${k}')">${['☀️','📜','🌙'][i]}</button>`).join('')}</div></div>
+   <article class="rbox ${rs.theme}" style="font-size:${rs.size}px;font-family:${rs.serif?'Georgia,serif':'inherit'}"><h2>${esc(s.title)}</h2>
+   ${p?`<h3>${esc(p.title)}</h3>${p.image?`<img src="${p.image}" alt="">`:''}${rich(p.content||'')}`:`<p>${t('noPages')}</p>`}</article>
+   ${pg.length?`<div class="rnav"><button class="ghost" ${readIdx?'':'disabled'} onclick="readGo(readIdx-1)">${t('prev')}</button>
+   <select onchange="readGo(+this.value)">${pg.map((x,i)=>`<option value="${i}" ${i===readIdx?'selected':''}>${esc(x.title)}</option>`).join('')}</select>
+   <button ${readIdx<pg.length-1?'':'disabled'} onclick="readGo(readIdx+1)">${t('next')}</button></div>`:''}`;
+}
+
+/* ---------- sanitizer + rich text ---------- */
+const OK_TAGS=new Set(['B','STRONG','I','EM','U','S','STRIKE','SPAN','DIV','P','BR','UL','OL','LI','FONT']);
+const OK_CSS=/^(color|background-color|font-size|font-family|text-align|line-height|letter-spacing|font-weight|font-style|text-decoration|text-decoration-line)$/;
+const safeVal=v=>/^[#\w\s.,%'"()-]*$/.test(v)&&!/url|expression|javascript|import/i.test(v);
+function clean(html){
+  const doc=new DOMParser().parseFromString('<body>'+(html||''),'text/html'),box=document.createElement('div');
+  const walk=(src,dst)=>src.childNodes.forEach(c=>{
+    if(c.nodeType===3)dst.appendChild(document.createTextNode(c.nodeValue));
+    else if(c.nodeType===1&&OK_TAGS.has(c.tagName)){
+      const e=document.createElement(c.tagName==='FONT'?'span':c.tagName.toLowerCase()),st=c.style;
+      for(let i=0;i<st.length;i++){const p=st[i],v=st.getPropertyValue(p);if(OK_CSS.test(p)&&safeVal(v))e.style.setProperty(p,v)}
+      walk(c,e);dst.appendChild(e)
+    }else if(c.nodeType===1&&!/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|NOSCRIPT|TEMPLATE|SVG|MATH)$/i.test(c.tagName))walk(c,dst);
+  });
+  walk(doc.body,box);return box.innerHTML;
+}
+const isHtml=x=>/<(p|div|span|b|i|u|s|br|strong|em|ul|ol|li|font)[\s>\/]/i.test(x||'');
+const rich=x=>!x?'':isHtml(x)?clean(x):para(x);
+const rteGet=id=>{const h=$(id)._get();return h.replace(/<[^>]*>|&nbsp;/g,'').trim()?h:''};
+const FONTS=['Georgia','Arial','Times New Roman','Courier New','Verdana','Tahoma','Comic Sans MS'],SZV=[12,14,16,18,20,24,28,32,40],LHV=[1.2,1.5,1.8,2,2.4],LSP=[0,0.5,1,2,3];
+function mountRTE(box,html){
+  const sel=(k,name,arr,fmt=x=>x)=>`<select data-s="${k}"><option value="">${name}</option>${arr.map(x=>`<option value="${x}">${fmt(x)}</option>`).join('')}</select>`;
+  box.classList.add('rte');
+  box.innerHTML=`<div class="tb"><button type="button" data-c="bold" title="Bold"><b>B</b></button><button type="button" data-c="italic" title="Italic"><i>I</i></button><button type="button" data-c="underline" title="Underline"><u>U</u></button><button type="button" data-c="strikeThrough" title="Strikethrough"><s>S</s></button>
+   ${sel('font','Font',FONTS)}${sel('size','Size',SZV,x=>x+'px')}
+   <span title="Text color">A<input type="color" data-col="foreColor" value="#000000"></span><input class="hex" data-hex="foreColor" placeholder="#HEX">
+   <span title="Highlight">🖍<input type="color" data-col="hiliteColor" value="#ffe066"></span><input class="hex" data-hex="hiliteColor" placeholder="#HEX">
+   <button type="button" data-c="justifyLeft" title="Left">⇤</button><button type="button" data-c="justifyCenter" title="Center">↔</button><button type="button" data-c="justifyRight" title="Right">⇥</button>
+   ${sel('lh','↕ Line',LHV)}${sel('ls','↔ Letter',LSP,x=>x+'px')}<button type="button" data-r="1" title="Reset formatting">⌫ Reset</button><button type="button" data-fs="1" title="Fullscreen">⤢</button></div><div class="ed rich" contenteditable="true"></div>`;
+  const ed=box.querySelector('.ed'),tb=box.querySelector('.tb');let saved=null;ed.innerHTML=rich(html||'');
+  const keep=()=>{const g=getSelection();if(g.rangeCount&&ed.contains(g.anchorNode))saved=g.getRangeAt(0).cloneRange()};
+  const restore=()=>{ed.focus();if(saved){const g=getSelection();g.removeAllRanges();g.addRange(saved)}};
+  ['keyup','mouseup','input','blur'].forEach(ev=>ed.addEventListener(ev,keep));
+  const exec=(c,v)=>{restore();document.execCommand('styleWithCSS',false,true);if(c==='hiliteColor'&&!document.execCommand('hiliteColor',false,v))document.execCommand('backColor',false,v);else if(c!=='hiliteColor')document.execCommand(c,false,v);keep()};
+  const spanCss=css=>{restore();document.execCommand('styleWithCSS',false,true);document.execCommand('fontSize',false,'7');
+    ed.querySelectorAll('span,font').forEach(sp=>{if(/xxx-large/.test(sp.style.fontSize)||sp.getAttribute('size')==='7'){sp.removeAttribute('size');sp.style.fontSize='';Object.assign(sp.style,css)}});keep()};
+  const lineH=v=>{restore();document.execCommand('formatBlock',false,'div');keep();const r=saved;[...ed.children].forEach(ch=>{if(!r||r.intersectsNode(ch))ch.style.lineHeight=v})};
+  const reset=()=>{restore();if(saved&&!saved.collapsed){document.execCommand('removeFormat');[...ed.children].forEach(ch=>{if(saved.intersectsNode(ch)){ch.style.lineHeight='';ch.style.textAlign=''}})}
+    else if(confirm(lang==='vi'?'Xoá toàn bộ định dạng của ô này?':'Clear all formatting in this box?'))ed.innerHTML=rich(esc(ed.innerText))};
+  tb.addEventListener('mousedown',e=>{if(e.target.closest('button'))e.preventDefault()});
+  tb.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.c)exec(b.dataset.c);else if(b.dataset.r)reset();else if(b.dataset.fs){box.classList.toggle('fs');document.body.style.overflow=box.classList.contains('fs')?'hidden':'';ed.focus()}});
+  tb.addEventListener('change',e=>{const k=e.target.dataset.s,v=e.target.value;if(!k||!v)return;
+    if(k==='font')exec('fontName',v);else if(k==='size')spanCss({fontSize:v+'px'});else if(k==='ls')spanCss({letterSpacing:v+'px'});else if(k==='lh')lineH(v);e.target.value=''});
+  tb.addEventListener('input',e=>{if(e.target.dataset.col)exec(e.target.dataset.col,e.target.value)});
+  tb.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.hex){e.preventDefault();const v=e.target.value.trim().replace(/^#?/,'#');if(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v))exec(e.target.dataset.hex,v)}});
+  ed.addEventListener('paste',e=>{e.preventDefault();const h=e.clipboardData.getData('text/html'),x=e.clipboardData.getData('text/plain');document.execCommand('insertHTML',false,h?clean(h):esc(x).replace(/\n/g,'<br>'))});
+  box.addEventListener('keydown',e=>{if(e.key==='Escape'&&box.classList.contains('fs')){box.classList.remove('fs');document.body.style.overflow=''}});box._get=()=>clean(ed.innerHTML);box._set=h=>{ed.innerHTML=rich(h||'');saved=null};
+}
+
+/* ---------- characters (main / supporting / NPC) ---------- */
+const L=(v,e)=>lang==='vi'?v:e;
+const CATS=[['main','Nhân vật chính','Main characters','+ Thêm nhân vật chính','+ Add main character'],['support','Nhân vật phụ','Supporting characters','+ Thêm nhân vật phụ','+ Add supporting character'],['npc','NPC','NPCs','+ Thêm NPC','+ Add NPC']];
+const CF=[['name','Tên nhân vật','Name'],['nick','Biệt danh / tên thường gọi','Nickname'],['gender','Giới tính','Gender'],['age','Tuổi','Age'],['birth','Ngày sinh','Birthday'],['height','Chiều cao','Height'],['job','Nghề nghiệp','Occupation'],['role','Vai trò trong truyện','Role in story'],['hobby','Sở thích','Hobbies'],['skill','Sở trường','Skills'],['weak','Điểm yếu','Weakness'],['family','Gia thế','Family background']];
+const CR=[['appearance','Ngoại hình','Appearance'],['personality','Tính cách','Personality'],['bio','Tiểu sử & quá khứ','Biography'],['relations','Các mối quan hệ','Relationships'],['secret','🔒 Bí mật nhân vật','🔒 Secrets'],['note','🔒 Ghi chú riêng của tác giả','🔒 Author notes']];
+let cq='',editingChar=null,charBuilt=false,cdraft={};
+const charsOf=s=>s.characters||[...(s.mainChar&&s.mainChar.name?[{id:'m0',cat:'main',name:s.mainChar.name,avatar:s.mainChar.avatar,show:true}]:[]),...(s.npcs||[]).map((n,i)=>({id:'n'+i,cat:'npc',name:n.name,avatar:n.avatar,bio:n.desc||'',show:true}))];
+const writeChars=fn=>mutate(m=>{const st=m.find(x=>x.id===currentStoryId);st.characters=JSON.parse(JSON.stringify(charsOf(st)));fn(st)});
+const stLabel=s=>({draft:L('Bản nháp','Draft'),published:L('Đã xuất bản','Published'),private:L('Riêng tư','Private')}[s.pub||'draft']);
+const charsPanel=()=>`<input id="cSearch" placeholder="${L('Tìm nhân vật...','Search characters...')}" value="${esc(cq)}" oninput="cq=this.value.toLowerCase();fillChars()"><div id="charLists"></div>`;
+function fillChars(){
+  const all=charsOf(curStory());
+  $('charLists').innerHTML=CATS.map(([k,vn,en,av,ae])=>{const list=all.filter(c=>c.cat===k&&(!cq||(c.name+' '+(c.nick||'')+' '+(c.role||'')).toLowerCase().includes(cq)));
+    return `<div class="panel"><div class="trash-bar"><h2 style="margin:0">${L(vn,en)} (${list.length})</h2><button class="sm" onclick="openChar(null,'${k}')">${L(av,ae)}</button></div>${list.length?list.map(c=>`<div class="row"><div class="rw">${avatar(c.avatar)}<div><h3>${esc(c.name||'—')}${c.show===false?' 🔒':''}</h3><p class="mu">${esc([c.nick,c.role].filter(Boolean).join(' · '))}</p></div></div>
+     <div class="acts"><select style="width:auto;margin:0" onchange="moveChar('${c.id}',this.value)">${CATS.map(x=>`<option value="${x[0]}" ${x[0]===k?'selected':''}>${L(x[1],x[2])}</option>`).join('')}</select><button class="ghost sm" onclick="openChar('${c.id}')">✏️</button><button class="danger sm" onclick="delChar('${c.id}')">${t('del')}</button></div></div>`).join(''):'<p class="mu">—</p>'}</div>`}).join('');
+}
+function openChar(id,cat){editingChar={id,cat:cat||charsOf(curStory()).find(c=>c.id===id).cat};charBuilt=false;go('char')}
+const backChars=()=>{go('story',currentStoryId);storyTab='chars';render()};
+function moveChar(id,cat){writeChars(st=>{st.characters.find(c=>c.id===id).cat=cat});render()}
+function delChar(id){
+  if(!confirm(L('Xoá nhân vật này?','Delete this character?')))return;const old=JSON.stringify(charsOf(curStory()));
+  writeChars(st=>{st.characters=st.characters.filter(c=>c.id!==id)});render();
+  toast(L('Đã xoá nhân vật','Character deleted'),()=>{writeChars(st=>{st.characters=JSON.parse(old)});render()});
+}
+function renderChar(){
+  if(charBuilt)return;charBuilt=true;
+  const c=editingChar.id?charsOf(curStory()).find(x=>x.id===editingChar.id):{show:true};
+  cdraft={avatar:c.avatar||null,custom:JSON.parse(JSON.stringify(c.custom||[]))};
+  $('charView').innerHTML=`<h1 style="margin-bottom:18px">${L('Hồ sơ nhân vật','Character profile')}</h1><form id="charForm">
+   <div class="panel"><div class="fg"><div><label>${L('Phân loại','Category')}</label><select id="cCat">${CATS.map(x=>`<option value="${x[0]}" ${x[0]===editingChar.cat?'selected':''}>${L(x[1],x[2])}</option>`).join('')}</select></div>
+   ${CF.map(([k,v,e])=>`<div><label>${L(v,e)}${k==='name'?' *':''}</label><input id="cf_${k}" value="${esc(c[k]||'')}" ${k==='name'?'required':''}></div>`).join('')}</div>
+   <label>${L('Ảnh đại diện','Avatar')}</label><input type="file" id="cAv" accept="image/*"><div id="cAvPrev"></div></div>
+   <div class="panel">${CR.map(([k,v,e])=>`<label>${L(v,e)}</label><div id="cr_${k}"></div>`).join('')}</div>
+   <div class="panel"><h2>${L('Trường tuỳ chỉnh','Custom fields')}</h2><div id="cCustom"></div><button type="button" class="ghost sm" id="cAddF">${L('+ Thêm trường','+ Add field')}</button></div>
+   <div class="panel"><label class="chk"><input type="checkbox" id="cShow" ${c.show!==false?'checked':''}>${L('Hiển thị cho độc giả (không gồm bí mật, ghi chú, trường tuỳ chỉnh)','Show to readers (excluding secrets, notes, custom fields)')}</label></div>
+   <div class="acts"><button type="submit">${L('Lưu nhân vật','Save character')}</button><button type="button" class="ghost" id="cCancel">${L('Huỷ','Cancel')}</button></div></form>`;
+  CR.forEach(([k])=>{mountRTE($('cr_'+k));$('cr_'+k)._set(c[k]||'')});
+  const prev=()=>$('cAvPrev').innerHTML=cdraft.avatar?`<img class="av" src="${cdraft.avatar}" alt="">`:'';
+  const cust=()=>$('cCustom').innerHTML=cdraft.custom.map((f,i)=>`<div class="npc-row"><div class="grow"><input data-i="${i}" data-k="k" value="${esc(f.k||'')}" placeholder="${L('Tên trường','Field name')}"><input data-i="${i}" data-k="v" value="${esc(f.v||'')}" placeholder="${L('Nội dung','Value')}"></div><button type="button" class="danger sm" data-rm="${i}">✕</button></div>`).join('');
+  prev();cust();
+  $('cAv').onchange=async e=>{const f=e.target.files[0];if(f){try{cdraft.avatar=await imgToURL(f,160)}catch{alert(t('notImg'))}prev()}};
+  $('cAddF').onclick=()=>{cdraft.custom.push({k:'',v:''});cust()};
+  $('cCustom').oninput=e=>{const d=e.target.dataset;if(d.k)cdraft.custom[d.i][d.k]=e.target.value};
+  $('cCustom').onclick=e=>{const i=e.target.dataset.rm;if(i!==undefined){cdraft.custom.splice(i,1);cust()}};
+  $('cCancel').onclick=backChars;
+  $('charForm').onsubmit=e=>{e.preventDefault();
+    const o={cat:$('cCat').value,avatar:cdraft.avatar,show:$('cShow').checked,custom:cdraft.custom.filter(f=>f.k&&f.k.trim())};
+    CF.forEach(([k])=>o[k]=$('cf_'+k).value.trim());CR.forEach(([k])=>o[k]=rteGet('cr_'+k));
+    writeChars(st=>{if(editingChar.id){const i=st.characters.findIndex(x=>x.id===editingChar.id);st.characters[i]={...st.characters[i],...o}}else st.characters.push({id:uid(),...o})});
+    backChars();
+  };
+}
+function togglePub(id){let on;mutate(m=>{const s=m.find(x=>x.id===id);on=s.pub!=='published';s.pub=on?'published':'draft'});render();
+  toast(on?L('Đã xuất bản — độc giả sẽ thấy truyện này','Published — readers can see it now'):L('Đã gỡ xuất bản','Unpublished'))}
+
+/* ---------- đồng bộ sang trang độc giả (bảng public_docs) ---------- */
+let pubSynced={},pubKeys=new Set();
+const authorName=()=>cloudUser?(cloudUser.user_metadata?.full_name||cloudUser.email.split('@')[0]):'';
+async function loadPubKeys(u){pubKeys=new Set();pubSynced={};const r=await sb.from('public_docs').select('key').eq('user_id',u.id);if(!r.error)(r.data||[]).forEach(x=>pubKeys.add(x.key))}
+function pubSnapshot(all){
+  const m={};all.forEach(st=>{if(st.userId!==uidNow||st.deletedAt||st.pub!=='published')return;
+    const ps=st.parts.filter(p=>!p.deletedAt&&!p.draft);
+    const chs=charsOf(st).filter(c=>c.show!==false).map(({secret,note,custom,show,...c})=>c);
+    m['s:'+st.id]=JSON.stringify({id:st.id,title:st.title,tagline:tagOf(st),tags:st.tags||[],cover:st.cover||null,progress:st.progress||'ongoing',featured:!!st.featured,hot:!!st.hot,author:authorName(),info:rich(infoOf(st)),opening:rich(st.opening||''),chars:chs,count:ps.length,last:ps.length?ps[ps.length-1].id:null});
+    ps.forEach((p,i)=>{m['p:'+p.id]=JSON.stringify({id:p.id,storyId:st.id,title:p.partName,num:p.chapterNumber,content:rich(p.content||''),image:p.image||null,order:i})})});
+  return m;
+}
+async function syncPub(cur){
+  if(!uidNow)return;const sets=[],dels=[];
+  for(const k in cur)if(pubSynced[k]!==cur[k])sets.push(k);
+  for(const k of pubKeys)if(!cur[k])dels.push(k);
+  if(!sets.length&&!dels.length)return;setSync('saving');
+  let batch=[],size=0;
+  const flush=async()=>{if(!batch.length)return;
+    const {error}=await sb.from('public_docs').upsert(batch.map(k=>({user_id:uidNow,key:k,data:JSON.parse(cur[k]),updated_at:new Date().toISOString()})),{onConflict:'user_id,key'});
+    if(error)throw new Error(L('Chưa tạo bảng public_docs: ','public_docs table missing: ')+error.message);batch.forEach(k=>{pubSynced[k]=cur[k];pubKeys.add(k)});batch=[];size=0};
+  for(const k of sets){if(batch.length&&size+cur[k].length>1500000)await flush();batch.push(k);size+=cur[k].length}
+  await flush();
+  for(let i=0;i<dels.length;i+=100){const c=dels.slice(i,i+100),{error}=await sb.from('public_docs').delete().eq('user_id',uidNow).in('key',c);if(error)throw error;c.forEach(k=>{pubKeys.delete(k);delete pubSynced[k]})}
+  setSync('synced');
+}
+
+/* ---------- Reader Website (công khai) ---------- */
+let mode=location.hash==='#studio'?'studio':'reader';
+const R={view:'home',stories:null,id:null,chs:[],q:'',genre:'',idx:0,b:0};
+function setMode(m){mode=m;history.replaceState(null,'',m==='studio'?'#studio':location.pathname+location.search);enter()}
+$('toStudio').onclick=()=>setMode('studio');$('authBack').onclick=()=>setMode('reader');$('toReaderNav').onclick=()=>setMode('reader');
+async function loadPub(){
+  if(!sb){R.stories=[];return}
+  const {data,error}=await sb.from('public_docs').select('key,data,updated_at').like('key','s:%').order('updated_at',{ascending:false}).limit(200);
+  R.err=error?error.message:'';R.stories=(data||[]).map(r=>({...r.data,updated:Date.parse(r.updated_at)}));
+}
+async function loadChs(id){const {data}=await sb.from('public_docs').select('data').like('key','p:%').filter('data->>storyId','eq',id);R.chs=(data||[]).map(r=>r.data).sort((a,b)=>a.order-b.order)}
+const rGo=()=>window.scrollTo({top:0});
+function rHome(){R.view='home';R.q='';R.genre='';R.status='';$('rSearch').value='';renderReader();rGo()}
+function rOpen(id){R.id=id;R.view='story';R.chs=[];renderReader();rGo();loadChs(id).then(renderReader)}
+function rReadAt(i){R.idx=i;R.view='read';renderReader();rGo()}
+$('rSearch').oninput=e=>{R.q=e.target.value.trim().toLowerCase();R.view=R.q?'lib':'home';renderReader()};
+$('rSearchBtn').onclick=()=>{const i=$('rSearch');i.classList.toggle('show');if(i.classList.contains('show'))i.focus();else{i.value='';R.q='';renderReader()}};
+$('reader').classList.toggle('dk',localStorage.getItem('pinkstory_rdk')==='1');
+const syncTheme=()=>$('rTheme').textContent=$('reader').classList.contains('dk')?'☀️':'🌙';syncTheme();
+$('rTheme').onclick=()=>{const d=$('reader').classList.toggle('dk');localStorage.setItem('pinkstory_rdk',d?'1':'0');syncTheme()};
+function rNav(v){R.view=v;R.q='';R.genre='';R.status='';$('rSearch').value='';renderReader();rGo()}
+const foldFix=()=>document.querySelectorAll('.fold').forEach(f=>{if(f.querySelector('.fold-in').scrollHeight<=245)f.classList.add('open','short')});
+const rsBar=()=>`<div class="acts"><button class="ghost sm" onclick="setRs('size',rs.size-2)">A−</button><button class="ghost sm" onclick="setRs('size',rs.size+2)">A+</button><button class="ghost sm" onclick="setRs('serif',!rs.serif)">${rs.serif?'Aa':'𝐀𝐚'}</button>${['light','sepia','dark'].map((k,i)=>`<button class="${rs.theme===k?'':'ghost'} sm" onclick="setRs('theme','${k}')">${['☀️','📜','🌙'][i]}</button>`).join('')}</div>`;
+const card=s=>{const full=s.progress==='full';return `<div class="card" onclick="rOpen('${s.id}')"><div class="im" style="${s.cover?`background-image:url('${s.cover}')`:''}">${s.cover?'':'📖'}<span class="rib ${full?'full':''}">${full?'Full':L('Đang ra','Ongoing')}</span></div><h4>${esc(s.title)}</h4><div class="mu" style="font-size:12px">${L(s.count+' chương',s.count+' ch.')}</div></div>`};
+function heroHTML(list){
+  const n=list.length,i=R.b%n,at=o=>list[(i+o+n)%n];
+  const slot=(o,st)=>`<div class="hc o${o}" onclick="${o===0?`rOpen('${st.id}')`:`R.b+=${o};renderReader()`}" style="${st.cover?`background-image:linear-gradient(#0000 45%,#2b0f1acc),url('${st.cover}')`:''}">${o===0?`<div class="hct"><span class="tag" style="background:#ffffff26;color:#fff">${st.progress==='full'?'Full':L('Đang cập nhật','Ongoing')}</span><h2>${esc(st.title)}</h2><p>${esc(st.tagline||'')}</p></div>`:''}</div>`;
+  return `<div class="hero3">${n>2?slot(-1,at(-1)):''}${n>1?slot(1,at(1)):''}${slot(0,at(0))}</div>`;
+}
+function renderReader(){
+  clearInterval(R.timer);const m=$('rMain');
+  document.querySelectorAll('.rhead nav a').forEach(a=>a.classList.toggle('on',a.dataset.n===R.view));
+  if(!configured){m.innerHTML=`<p class="err">${t(window.supabase?'noConfig':'noLib')}</p>`;return}
+  const all=R.stories;if(!all){m.innerHTML=`<p class="mu">${L('Đang tải...','Loading...')}</p>`;return}
+  if(R.view==='story')return rStory(m);if(R.view==='read')return rRead(m);
+  if(R.err)return m.innerHTML=`<p class="err">${L('Không tải được truyện công khai. Hãy chạy SQL tạo bảng public_docs. ','Could not load public stories. Run the public_docs SQL. ')}${esc(R.err)}</p>`;
+  const tags=[...new Set(all.flatMap(s=>s.tags||[]))];
+  const flt=a=>a.filter(s=>(!R.q||(s.title+' '+(s.tagline||'')+' '+(s.tags||[]).join(' ')).toLowerCase().includes(R.q))&&(!R.genre||(s.tags||[]).includes(R.genre))&&(!R.status||(s.progress||'ongoing')===R.status));
+  const pills=`<div class="pills"><select class="pill" onchange="R.genre=this.value;renderReader()"><option value="">${L('Thể loại','Genre')}</option>${tags.map(g=>`<option value="${esc(g)}" ${g===R.genre?'selected':''}>${esc(g)}</option>`).join('')}</select>${[['',L('Tất cả','All')],['full','Full'],['ongoing',L('Đang cập nhật','Ongoing')]].map(([k,v])=>`<button class="pill ${(R.status||'')===k?'on':''}" onclick="R.status='${k}';renderReader()">${v}</button>`).join('')}</div>`;
+  const grid=a=>a.length?`<div class="grid">${a.map(card).join('')}</div>`:`<p class="mu">${L('Không có truyện phù hợp.','No matching stories.')}</p>`;
+  if(R.view==='lib'||R.q)return m.innerHTML=`<h2>${R.q?L('Kết quả','Results'):L('📚 Kho truyện','📚 Library')} (${flt(all).length})</h2>${pills}${grid(flt(all))}`;
+  if(R.view==='hot')return m.innerHTML=`<h2>${L('🔥 Truyện hot','🔥 Hot stories')}</h2>${pills}${grid(flt(all.filter(s=>s.hot)))}`;
+  if(!all.length)return m.innerHTML=`<p class="mu">${L('Chưa có truyện nào được xuất bản.','No stories have been published yet.')}</p>`;
+  const feat=all.filter(s=>s.featured),hl=(feat.length?feat:all).slice(0,6),hotAll=all.some(s=>s.hot);
+  m.innerHTML=`<div id="heroBox">${heroHTML(hl)}</div>${hotAll?`<h2>🔥 ${L('Truyện hot','Hot stories')}</h2>${pills}${grid(flt(all.filter(s=>s.hot)))}`:''}<h2>🆕 ${L('Mới cập nhật','Latest updates')}</h2>${hotAll?'':pills}${grid(flt(all))}`;
+  if(hl.length>1)R.timer=setInterval(()=>{const b=$('heroBox');if(!b||R.view!=='home'||$('reader').classList.contains('hidden'))return;R.b++;b.innerHTML=heroHTML(hl)},6000);
+}
+function rStory(m){
+  const s=R.stories.find(x=>x.id===R.id);if(!s)return rHome();
+  const grp=CATS.map(([k,vn,en])=>{const l=(s.chars||[]).filter(c=>c.cat===k);return l.length?`<div class="panel"><h2>${L(vn,en)}</h2>${l.map(c=>`<div class="row" style="display:block"><div class="rw">${avatar(c.avatar)}<div><h3>${esc(c.name)}</h3><p class="mu">${esc([c.nick,c.role,c.age].filter(Boolean).join(' · '))}</p></div></div>${fold('rfc'+c.id,[c.appearance,c.personality,c.bio].map(x=>rich(x||'')).join(''))}</div>`).join('')}</div>`:''}).join('');
+  m.innerHTML=`<button class="ghost sm back" onclick="rHome()">${L('← Trang chủ','← Home')}</button>
+   <div class="dhead"><div class="im" style="${s.cover?`background-image:url('${s.cover}')`:''}"></div><div style="flex:1;min-width:240px"><h1 style="font-size:30px;margin-bottom:8px">${esc(s.title)}</h1>
+   <p class="mu">${L('Tác giả','Author')}: ${esc(s.author||'')} · ${s.progress==='full'?'Full':L('Đang cập nhật','Ongoing')}</p><div style="margin:10px 0">${(s.tags||[]).map(g=>`<span class="tag">${esc(g)}</span>`).join('')}</div>
+   <p>${esc(s.tagline||'')}</p><button onclick="rReadAt(0)" ${R.chs.length||s.opening?'':'disabled'}>📖 ${L('Đọc từ đầu','Start reading')}</button></div></div>
+   ${s.info?`<div class="panel"><h2>${L('Giới thiệu','About')}</h2>${fold('rfi',s.info)}</div>`:''}${grp}
+   <div class="panel"><h2>${L('Danh sách chương','Chapters')} (${s.count})</h2>${R.chs.length?R.chs.map((c,i)=>`<div class="row" style="cursor:pointer" onclick="rReadAt(${i+(s.opening?1:0)})"><b>${c.num?L('Chương ','Chapter ')+c.num+' — ':''}${esc(c.title)}</b></div>`).join(''):`<p class="mu">${L('Chưa có chương.','No chapters yet.')}</p>`}</div>`;
+  foldFix();
+}
+function rRead(m){
+  const s=R.stories.find(x=>x.id===R.id);if(!s)return rHome();
+  const pg=[...(s.opening?[{title:L('Mở đầu','Opening'),content:s.opening}]:[]),...R.chs.map(c=>({title:(c.num?`${L('Chương','Chapter')} ${c.num} — `:'')+c.title,content:c.content,image:c.image}))];
+  R.idx=Math.max(0,Math.min(R.idx,pg.length-1));const p=pg[R.idx],go_=i=>`R.idx=${i};renderReader();rGo()`;
+  m.innerHTML=`<div class="rbar"><button class="ghost sm" onclick="R.view='story';renderReader()">${L('← Quay lại','← Back')}</button>${rsBar()}</div>
+   <article class="rbox ${rs.theme}" style="font-size:${rs.size}px;font-family:${rs.serif?'Georgia,serif':'inherit'}"><h2>${esc(s.title)}</h2>${p?`<h3>${esc(p.title)}</h3>${p.image?`<img src="${p.image}" alt="">`:''}${rich(p.content)}`:''}</article>
+   <div class="rnav"><button class="ghost" ${R.idx?'':'disabled'} onclick="${go_(R.idx-1)}">${L('← Trước','← Prev')}</button><select onchange="R.idx=+this.value;renderReader();rGo()">${pg.map((x,i)=>`<option value="${i}" ${i===R.idx?'selected':''}>${esc(x.title)}</option>`).join('')}</select><button ${R.idx<pg.length-1?'':'disabled'} onclick="${go_(R.idx+1)}">${L('Sau →','Next →')}</button></div>`;
+}
+
+/* ---------- backup ---------- */
+function updUsage(){$('usage').textContent=t(syncState)}
+$('exportBtn').onclick=()=>{
+  const u=sessionUser(),data={app:'pinkstory',version:1,exportedAt:new Date().toISOString(),stories:mine()},a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));a.download=`pinkstory-${u.username}-${new Date().toISOString().slice(0,10)}.json`;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast(t('exported'));
+};
+$('importFile').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());if(d.app!=='pinkstory'||!Array.isArray(d.stories))throw 0;
+    if(!confirm(t('confirmImport')(d.stories.length)))return;const u=sessionUser();
+    const ok=mutate((m,all)=>{d.stories.forEach(st=>{st.userId=u.id;st.parts=st.parts||[];const i=all.findIndex(x=>x.id===st.id);
+      if(i>-1&&all[i].userId===u.id)all[i]=st;else{if(i>-1)st.id=uid();all.push(st)}})});
+    if(ok){render();toast(t('imported'))}
+  }catch{alert(t('badFile'))}
+};
+
+/* ---------- soft delete / trash ---------- */
+let toastTimer;
+function toast(msg,undo){
+  const el=$('toast');el.innerHTML=`<span>${msg}</span>`;
+  if(undo){const b=document.createElement('button');b.textContent=t('undo');b.onclick=()=>{undo();el.classList.add('hidden')};el.appendChild(b)}
+  el.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.add('hidden'),6000);
+}
+function delStory(id){mutate(m=>{m.find(s=>s.id===id).deletedAt=Date.now()});render();toast(t('movedStory'),()=>restoreStory(id,true))}
+function delPart(id){mutate(m=>{const p=m.find(s=>s.id===currentStoryId).parts.find(p=>p.id===id);p.deletedAt=Date.now()});render();toast(t('movedPart'),()=>restorePart(currentStoryId,id,true))}
+function restoreStory(id,quiet){mutate(m=>{delete m.find(s=>s.id===id).deletedAt});render();if(!quiet)toast(t('restored'))}
+function restorePart(sid,pid,quiet){mutate(m=>{delete m.find(s=>s.id===sid).parts.find(p=>p.id===pid).deletedAt});render();if(!quiet)toast(t('restored'))}
+function purgeStory(id){if(!confirm(t('confirmPurge')))return;mutate((m,all)=>{all.splice(all.findIndex(s=>s.id===id),1)});render();toast(t('purged'))}
+function purgePart(sid,pid){if(!confirm(t('confirmPurge')))return;mutate(m=>{const s=m.find(s=>s.id===sid);s.parts=s.parts.filter(p=>p.id!==pid)});render();toast(t('purged'))}
+$('emptyBtn').onclick=()=>{
+  if(!confirm(t('confirmEmpty')))return;const u=sessionUser();
+  mutate((m,all)=>{for(let i=all.length-1;i>=0;i--)if(all[i].userId===u.id&&all[i].deletedAt)all.splice(i,1);
+    all.forEach(s=>{if(s.userId===u.id)s.parts=s.parts.filter(p=>!p.deletedAt)})});
+  render();toast(t('purged'));
+};
+function renderTrash(all){
+  const ds=all.filter(s=>s.deletedAt).sort((a,b)=>b.deletedAt-a.deletedAt);
+  $('trashStories').innerHTML=!ds.length?`<p class="mu">${t('trashEmpty')}</p>`:ds.map(s=>`
+   <div class="row"><div><h3>${esc(s.title)}</h3><p class="mu">${t('parts')(s.parts.length)} · ${t('deletedAt')}: ${fmt(s.deletedAt)}</p></div>
+   <div class="acts"><button class="sm" onclick="restoreStory('${s.id}')">${t('restore')}</button><button class="danger sm" onclick="purgeStory('${s.id}')">${t('purge')}</button></div></div>`).join('');
+  const dp=[];all.filter(alive).forEach(s=>s.parts.forEach(p=>p.deletedAt&&dp.push({s,p})));dp.sort((a,b)=>b.p.deletedAt-a.p.deletedAt);
+  $('trashParts').innerHTML=!dp.length?`<p class="mu">${t('trashEmpty')}</p>`:dp.map(({s,p})=>`
+   <div class="row"><div><h3>${p.chapterNumber?`${t('chapter')} ${p.chapterNumber} — `:''}${esc(p.partName)}</h3><p class="mu">${t('fromStory')}: ${esc(s.title)} · ${t('deletedAt')}: ${fmt(p.deletedAt)}</p></div>
+   <div class="acts"><button class="sm" onclick="restorePart('${s.id}','${p.id}')">${t('restore')}</button><button class="danger sm" onclick="purgePart('${s.id}','${p.id}')">${t('purge')}</button></div></div>`).join('');
+}
+
+/* ---------- boot ---------- */
+['fInfo','fOpen','fWorld','fTime','fNote','contentInput'].forEach(id=>mountRTE($(id)));
+applyI18n();
+if(configured){
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);let last=null;
+  const handle=async u=>{
+    if(!u){cloudUser=null;uidNow=null;delete mem[KEY];synced={};enter();return}
+    failWith(t('loading'));
+    try{
+      await loadCloud(u);cloudUser=u;await loadPubKeys(u);
+      if(!load(KEY,[]).length&&!localStorage.getItem('ps_mig_'+u.id)){
+        const old=await readLegacy();
+        if(old.length&&confirm(t('migrate')(old.length))){old.forEach(x=>{x.userId=u.id;x.parts=x.parts||[]});save(KEY,old)}
+        localStorage.setItem('ps_mig_'+u.id,'1')}
+      failWith('');enter();syncQ=syncQ.then(()=>syncPub(pubSnapshot(load(KEY,[])))).catch(()=>{});
+    }catch(e){failWith(t('loadFail')+' ('+(e.message||e.code)+')');sb.auth.signOut()}
+  };
+  sb.auth.onAuthStateChange((ev,session)=>{
+    if(ev==='PASSWORD_RECOVERY')setTimeout(async()=>{const p=prompt(t('newPass'));if(p&&p.length>=6){const r=await sb.auth.updateUser({password:p});alert(r.error?r.error.message:t('passChanged'))}},300);
+    const id=session?.user?.id||null;if(id===last)return;last=id;setTimeout(()=>handle(session?.user||null),0);
+  });
+}
+enter();
+</script>
+</body>
+</html>
